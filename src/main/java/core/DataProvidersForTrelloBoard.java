@@ -1,5 +1,6 @@
 package core;
 
+import actions.TrelloBoardActions;
 import com.thedeanda.lorem.Lorem;
 import com.thedeanda.lorem.LoremIpsum;
 import org.testng.annotations.DataProvider;
@@ -8,10 +9,17 @@ public class DataProvidersForTrelloBoard {
     Lorem lorem = LoremIpsum.getInstance();
 
     @DataProvider
-    public Object[][] boardsProvider() {
+    public Object[][] boardPropertiesProvider() {
         // name, description
         return new Object[][]{
                 { lorem.getTitle(2, 4), lorem.getParagraphs(1, 1) },
+        };
+    }
+
+    @DataProvider
+    public Object[][] boardsProvider() {
+        return new Object[][]{
+                { TrelloBoardActions.createBoard(lorem.getTitle(2, 4), lorem.getParagraphs(1, 1)) }
         };
     }
 

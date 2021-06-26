@@ -68,11 +68,11 @@ public class TrelloBoardServiceObj extends TrelloApi {
                 .build();
     }
 
-    public static TrelloBoard getAnswer(Response response) {
+    public static TrelloBoard getBoard(Response response) {
         Type type = (new TypeToken<TrelloBoard>() {}).getType();
-        TrelloBoard answers = new Gson()
+        TrelloBoard board = new Gson()
             .fromJson(response.asString().trim(), type);
-        return answers;
+        return board;
     }
 
     public static class ApiRequestBuilder {

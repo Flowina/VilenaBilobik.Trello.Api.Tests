@@ -1,39 +1,45 @@
+import actions.TrelloBoardActions;
 import com.thedeanda.lorem.LoremIpsum;
 import core.DataProvidersForTrelloBoard;
 import core.TrelloBoardServiceObj;
 import entities.TrelloBoard;
 import io.restassured.http.Method;
 import io.restassured.response.Response;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 
 import static constants.TestData.*;
 import static core.TrelloApi.*;
-import static core.TrelloBoardServiceObj.getAnswer;
 import static matchers.IsBoardContainsProperties.boardContainsProperties;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 public class TrelloBoardApiTests {
-    private Map<String, TrelloBoard> boards = new HashMap<>();
+    private List<TrelloBoard> testBoards = new LinkedList<>();
 
-    @BeforeTest()
-    public void beforeTest() {
-        boards.clear();
-    }
-
-    @BeforeMethod()
+    @AfterTest(alwaysRun = true)
     public void afterTest() {
-
+        while (testBoards.size() > 0) {
+            TrelloBoard board = testBoards.get(0);
+            if (board != null) {
+                try {
+                    TrelloBoardActions.deleteBoard(board);
+                } catch (Exception e) {
+                    System.out.println("\u001B[31m" + "TrelloBoardApiTests. Clean test data ERROR. BoardId = " +
+                            board.getId() + "\u001B[0m");
+                    e.printStackTrace();
+                } finally {
+                    testBoards.remove(board);
+                }
+            }
+        }
     }
 
     @Test(dataProviderClass = DataProvidersForTrelloBoard.class,
-            dataProvider = "boardsProvider",
-            groups = "cru")
+            dataProvider = "boardPropertiesProvider")
     public void createBoard(String name, String description) {
         Response response =
                 TrelloBoardServiceObj.requestBuilder()
@@ -48,25 +54,25 @@ public class TrelloBoardApiTests {
                 .assertThat()
                 .spec(goodResponseSpecification());
 
-        TrelloBoard answer = getAnswer(response);
-
-        //Save Boards for next tests
-        boards.put(answer.getId(), answer);
+        TrelloBoard board = TrelloBoardServiceObj.getBoard(response);
 
         assertThat("Response should contain id tag",
-                answer,
+                board,
                 hasProperty("id"));
 
-        assertThat(answer, is(boardContainsProperties(name, description)));
+        assertThat(board, is(boardContainsProperties(name, description)));
+
+        testBoards.add(board);
     }
 
-    @Test(dependsOnMethods = "createBoard", groups = "cru")
-    public void getBoard() {
-        TrelloBoard board = getTrelloBoard();
+    @Test(dataProviderClass = DataProvidersForTrelloBoard.class,
+            dataProvider = "boardsProvider")
+    public void getBoard(TrelloBoard existedBoard) {
+        testBoards.add(existedBoard);
         Response response =
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.GET)
-                        .setBasePath(board.getId())
+                        .setBasePath(existedBoard.getId())
                         .buildRequest()
                         .sendRequest();
         response
@@ -74,11 +80,11 @@ public class TrelloBoardApiTests {
                 .assertThat()
                 .spec(goodResponseSpecification());
 
-        TrelloBoard answer = getAnswer(response);
-        assertThat(answer, is(
+        TrelloBoard board = TrelloBoardServiceObj.getBoard(response);
+        assertThat(board, is(
                 boardContainsProperties(
-                        board.getName(),
-                        board.getDesc())
+                        existedBoard.getName(),
+                        existedBoard.getDesc())
                 )
         );
     }
@@ -162,16 +168,17 @@ public class TrelloBoardApiTests {
                 .body(equalToIgnoringCase(INVALID_NAME_RESPONSE_TEXT));
     }
 
-    @Test(dependsOnMethods = "createBoard", groups = "cru")
-    public void updateExistingBoard() {
-        TrelloBoard board = getTrelloBoard();
+    @Test(dataProviderClass = DataProvidersForTrelloBoard.class,
+            dataProvider = "boardsProvider")
+    public void updateExistingBoard(TrelloBoard existedBoard) {
+        testBoards.add(existedBoard);
         String newName = LoremIpsum.getInstance().getTitle(3);
         String newDescription = LoremIpsum.getInstance().getParagraphs(1, 2);
 
         Response response =
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.PUT)
-                        .setBasePath(board.getId())
+                        .setBasePath(existedBoard.getId())
                         .setName(newName)
                         .setDescription(newDescription)
                         .buildRequest()
@@ -181,8 +188,8 @@ public class TrelloBoardApiTests {
                 .assertThat()
                 .spec(goodResponseSpecification());
 
-        TrelloBoard answer = getAnswer(response);
-        assertThat(answer, is(
+        TrelloBoard board = TrelloBoardServiceObj.getBoard(response);
+        assertThat(board, is(
                 boardContainsProperties(
                         newName,
                         newDescription)
@@ -207,23 +214,18 @@ public class TrelloBoardApiTests {
                 .body(equalToIgnoringCase(RESOURCE_NOT_FOUND_RESPONSE_TEXT));
     }
 
-    @Test(dependsOnGroups = {"cru"})
-    public void deleteExistingBoards() {
-        for (Map.Entry<String, TrelloBoard> entry : boards.entrySet()) {
-            Response response =
-                    TrelloBoardServiceObj.requestBuilder()
-                            .setMethod(Method.DELETE)
-                            .setBasePath(entry.getKey())
-                            .buildRequest()
-                            .sendRequest();
-            response
-                    .then()
-                    .assertThat()
-                    .spec(goodResponseSpecification());
-        }
-    }
-
-    private TrelloBoard getTrelloBoard() {
-        return boards.entrySet().stream().findFirst().get().getValue();
+    @Test(dataProviderClass = DataProvidersForTrelloBoard.class,
+            dataProvider = "boardsProvider")
+    public void deleteExistingBoards(TrelloBoard board) {
+        Response response =
+                TrelloBoardServiceObj.requestBuilder()
+                        .setMethod(Method.DELETE)
+                        .setBasePath(board.getId())
+                        .buildRequest()
+                        .sendRequest();
+        response
+                .then()
+                .assertThat()
+                .spec(goodResponseSpecification());
     }
 }
