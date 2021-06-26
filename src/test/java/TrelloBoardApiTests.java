@@ -8,6 +8,7 @@ import io.restassured.response.Response;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -59,7 +60,10 @@ public class TrelloBoardApiTests {
                 board,
                 hasProperty("id"));
 
-        assertThat(board, is(boardContainsProperties(name, description)));
+        assertThat(board, is(boardContainsProperties(new HashMap<String, Object>() {{
+            put("name", name);
+            put("desc", description);
+        }})));
 
         testBoards.add(board);
     }
@@ -79,12 +83,8 @@ public class TrelloBoardApiTests {
                 .spec(goodResponseSpecification());
 
         TrelloBoard board = TrelloBoardServiceObj.getBoard(response);
-        assertThat(board, is(
-                boardContainsProperties(
-                        existedBoard.getName(),
-                        existedBoard.getDesc())
-                )
-        );
+
+        assertThat(board, is(boardContainsProperties(existedBoard.getName(), existedBoard.getDesc())));
     }
 
     @Test(dataProviderClass = DataProvidersForTrelloBoard.class,
@@ -181,12 +181,8 @@ public class TrelloBoardApiTests {
                 .spec(goodResponseSpecification());
 
         TrelloBoard board = TrelloBoardServiceObj.getBoard(response);
-        assertThat(board, is(
-                boardContainsProperties(
-                        newName,
-                        newDescription)
-                )
-        );
+
+        assertThat(board, is(boardContainsProperties(newName, newDescription)));
     }
 
     @Test(dataProviderClass = DataProvidersForTrelloBoard.class,
