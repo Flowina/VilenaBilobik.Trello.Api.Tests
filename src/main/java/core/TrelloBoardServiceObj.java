@@ -24,7 +24,6 @@ public class TrelloBoardServiceObj extends TrelloApi {
     public static final URI API_URL =
             URI.create("https://api.trello.com/1/boards/");
 
-    private static long requestNumber = 0L;
     private Method requestMethod;
     private String basePath;
     private Map<String, String> parameters;
@@ -106,8 +105,8 @@ public class TrelloBoardServiceObj extends TrelloApi {
             return this;
         }
 
-        public TrelloBoardServiceObj buildRequest() {
-            return new TrelloBoardServiceObj(parameters, body, requestMethod, basePath);
+        public Response send() {
+            return new TrelloBoardServiceObj(parameters, body, requestMethod, basePath).sendRequest();
         }
     }
 }

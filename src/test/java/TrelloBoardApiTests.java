@@ -46,8 +46,7 @@ public class TrelloBoardApiTests {
                         .setMethod(Method.POST)
                         .setName(name)
                         .setDescription(description)
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
 
         response
                 .then()
@@ -73,8 +72,7 @@ public class TrelloBoardApiTests {
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.GET)
                         .setBasePath(existedBoard.getId())
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
         response
                 .then()
                 .assertThat()
@@ -96,8 +94,7 @@ public class TrelloBoardApiTests {
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.GET)
                         .setBasePath(boardId)
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
         response
                 .then()
                 .assertThat()
@@ -111,8 +108,7 @@ public class TrelloBoardApiTests {
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.DELETE)
                         .setBasePath(boardId)
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
         response
                 .then()
                 .assertThat()
@@ -126,8 +122,7 @@ public class TrelloBoardApiTests {
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.GET)
                         .setBasePath(invalidId)
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
         response
                 .then()
                 .assertThat()
@@ -142,8 +137,7 @@ public class TrelloBoardApiTests {
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.POST)
                         .setName(name)
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
 
         response
                 .then()
@@ -158,8 +152,7 @@ public class TrelloBoardApiTests {
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.POST)
                         .setName("")
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
 
         response
                 .then()
@@ -181,8 +174,7 @@ public class TrelloBoardApiTests {
                         .setBasePath(existedBoard.getId())
                         .setName(newName)
                         .setDescription(newDescription)
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
         response
                 .then()
                 .assertThat()
@@ -205,8 +197,7 @@ public class TrelloBoardApiTests {
                         .setMethod(Method.PUT)
                         .setBasePath(boardId)
                         .setName("foo")
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
         response
                 .then()
                 .assertThat()
@@ -221,8 +212,7 @@ public class TrelloBoardApiTests {
                 TrelloBoardServiceObj.requestBuilder()
                         .setMethod(Method.DELETE)
                         .setBasePath(board.getId())
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
         response
                 .then()
                 .assertThat()

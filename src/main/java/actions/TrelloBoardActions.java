@@ -14,8 +14,7 @@ public class TrelloBoardActions {
                         .setMethod(Method.POST)
                         .setName(name)
                         .setDescription(description)
-                        .buildRequest()
-                        .sendRequest();
+                        .send();
 
         response
                 .then()
@@ -31,7 +30,6 @@ public class TrelloBoardActions {
         TrelloBoardServiceObj.requestBuilder()
                 .setMethod(Method.DELETE)
                 .setBasePath(board.getId())
-                .buildRequest()
-                .sendRequest();
+                .send();
     }
 }
